@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Choose User</title>
+    <script src="https://code.jquery.com/jquery.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.5.1/chosen.jquery.min.js"></script>
+</head>
+
+<body>
+    <h2>List of Users</h2>
+    <ol id = "users">
+    </ol>
+
+    <a href="/"><button>Back to Login</button></a>
+</body>
+
+<script>
+    $.get("/api/users", function (data) {
+        console.log(data);
+        for(var i=0;i<data.length;i++){
+            var li = $("<li>");
+            var a = $("<a>").attr("href",`/personalPage?id=${data[i].id}`);
+            $("<button>").html(`${data[i].firstName} ${data[i].lastName}`).appendTo(a)
+                a.appendTo(li);
+            li.appendTo("#users");
+        }
+    })
+</script>
+
+</html>

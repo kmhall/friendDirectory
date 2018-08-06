@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="https://code.jquery.com/jquery.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.5.1/chosen.jquery.min.js"></script>
+
+</head>
+
+<body>
+    <h2>Change the info you want replaced</h2>
+    <div style="background: darkkhaki;">
+        <h3>My Info</h3>
+        <ul style="list-style: none;">
+            <li>
+                <h4>First Name :</h4>
+                <input id="firstName" type="text">
+            </li>
+            <li>
+                    <h4>Last Name :</h4>
+                    <input id="lastName" type="text">
+                </li>
+            <li>
+                <h4>Hometown :</h4>
+                <input id="hometown" type="text">
+            </li>
+            <li>
+                <h4>School :</h4>
+                <input id="school" type="text">
+            </li>
+            <li>
+                <h4>Birthday :</h4>
+                <input id="birthday" type="text">
+            </li>
+        </ul>
+        <button id = "update">Update</button>
+    </div>
+    <script>
+        ///////////////////////////////////////
+        //URL Parsing Parameters             //
+        ///////////////////////////////////////
+        var urlParams;
+
+        function getJsonFromUrl() {
+            var query = location.search.substr(1);
+            var result = {};
+            query.split("&").forEach(function (part) {
+                var item = part.split("=");
+                result[item[0]] = decodeURIComponent(item[1]);
+            });
+            urlParams = result;
+            console.log(`URL PARAMS: ${urlParams.id}`);
+
+        }
+        getJsonFromUrl();
+
+        var myInfo;
+        ///////////////////////////////////////
+        //Retrieve My Info                   //
+        ///////////////////////////////////////
+        $.get("/api/users", function (data) {
+            for (var i = 0; i < data.length; i++) {
+                if (data[i].id == urlParams.id) {
+                    myInfo = data[i];
+                    console.log(myInfo)
+                    myInfoLoaded();
+                    break;
+                }
+            }
+        })
+        var _href;
+        ///////////////////////////////////////
+        // Dynamically Populate W/ My Info   //
+        ///////////////////////////////////////
+        function myInfoLoaded() {
+            //ChangeInfo Button
+          _href =  `personalPage?id=${urlParams.id}`
+
+            $("#firstName").val(myInfo.firstName)
+            $("#lastName").val(myInfo.lastName)
+
+            $("#hometown").val(myInfo.hometown)
+            $("#school").val(myInfo.school)
+            $("#birthday").val(myInfo.birthday)
+        }
+
+
+        ///////////////////////////////////////
+        //Update My Info                     //
+        ///////////////////////////////////////
+        $("#update").on("click", function () {
+        event.preventDefault();
+         myInfo.firstName = $("#firstName").val();
+         myInfo.lastName = $("#lastName").val();
+         myInfo.hometown = $("#hometown").val();
+         myInfo.school = $("#school").val();
+         myInfo.birthday = $("#birthday").val()
+         console.log(myInfo)
+         $.post("/api/update", myInfo, function (data) {
+        })
+        console.log("My Info Updated")
+        window.location.replace(_href)
+    })
+    </script>
+</body>
+
+</html>

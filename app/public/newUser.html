@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="https://code.jquery.com/jquery.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.5.1/chosen.jquery.min.js"></script>
+</head>
+
+<body>
+    <form id="#submit">
+        First name:
+        <input id="firstName" type="text">
+        <br> Last name:
+        <input id="lastName" type="text">
+        <br> School:
+        <input id="school" type="text">
+        <br> Hometown:
+        <input id="hometown" type="text">
+        <br> Birthday:
+        <input id="birthday" type="text">
+        <br>
+
+        <button id="submit">Submit</button>
+
+
+    </form>
+    <a href="/">
+        <button>Back to Login</button>
+    </a>
+</body>
+<script>
+    var userName;
+    $("#submit").on("click", function () {
+        event.preventDefault();
+        var userName = {
+            id: 0,
+            firstName: $("#firstName").val(),
+            lastName: $("#lastName").val(),
+            friends: [],
+            hometown: $("#hometown").val(),
+            school: $("#school").val(),
+            birthday: $("#birthday").val()
+        };
+        console.log(userName)
+        $.post("/api/users", userName, function (data) {
+        })
+        console.log("New user added")
+        window.location.replace(`/chooseUser`)
+    })
+
+
+</script>
+
+</html>

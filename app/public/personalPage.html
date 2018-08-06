@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Personal Page</title>
+    <script src="https://code.jquery.com/jquery.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.5.1/chosen.jquery.min.js"></script>
+</head>
+
+<body>
+    <h1>"My Personal Page"</h1>
+    <h2 id="currentUser"></h2>
+    <div style="background: darkkhaki;">
+        <h3>My Info</h3>
+        <ul style="list-style: none;">
+            <li>
+                <h4>Hometown :</h4>
+                <p id="hometown"></p>
+            </li>
+            <li>
+                <h4>School :</h4>
+
+                <p id="school"></p>
+            </li>
+            <li>
+                <h4>Birthday :</h4>
+
+                <p id="birthday"></p>
+            </li>
+        </ul>
+    </div>
+    <!-- Target for Change Info Button -->
+    <a id="changeInfo" href="/changeInfo">
+        <button>Change My Info</button>
+    </a>
+
+    <div style="background: darkgoldenrod;">
+        <h3>Friend Info</h3>
+        <div id="friendInfo" style="margin: 20px; padding-bottom: 20px;">
+            <!-- Target for dynamic friend info -->
+        </div>
+    </div>
+    <button>Add Friend</button>
+    <button>Remove Friend</button>
+    <a href="/chooseUser">
+        <button>Back</button>
+    </a>
+
+</body>
+<script>
+    ///////////////////////////////////////
+    //URL Parsing Parameters             //
+    ///////////////////////////////////////
+    var urlParams;
+
+    function getJsonFromUrl() {
+        var query = location.search.substr(1);
+        var result = {};
+        query.split("&").forEach(function (part) {
+            var item = part.split("=");
+            result[item[0]] = decodeURIComponent(item[1]);
+        });
+        urlParams = result;
+        console.log(`URL PARAMS: ${urlParams.id}`);
+
+    }
+    getJsonFromUrl();
+
+
+    ///////////////////////////////////////////
+    //API calls && Logic to get friend list  //
+    ///////////////////////////////////////////
+    var myInfo;
+    var listFriends = [];
+
+    var friend = {
+        firstName: "",
+        lastName: "",
+        hometown: "",
+        school: "",
+        birthday: ""
+
+    }
+    $.get("/api/users", function (data) {
+        for (var i = 0; i < data.length; i++) {
+            if (data[i].id == urlParams.id) {
+                myInfo = data[i];
+                console.log(myInfo)
+                break;
+            }
+        }
+        if ("friends" in myInfo) {
+            for (var i = 0; i < myInfo.friends.length; i++) {
+                for (var j = 0; j < data.length; j++) {
+                    if (data[j].id == myInfo.friends[i]) {
+                        friend = {
+                            firstName: data[j].firstName,
+                            lastName: data[j].lastName,
+                            hometown: data[j].hometown,
+                            school: data[j].school,
+                            birthday: data[j].birthday
+                        }
+                        listFriends.push(friend);
+                    }
+                }
+
+
+            }
+        }
+        console.log(listFriends);
+        ///////////////////////////////////////
+        //Dynamic Polulation                 //
+        ///////////////////////////////////////
+
+        //My Info
+        $("#currentUser").html(`${myInfo.firstName} ${myInfo.lastName}`)
+        $("#hometown").html(myInfo.hometown)
+        $("#school").html(myInfo.school)
+        $("#birthday").html(myInfo.birthday)
+
+        //ChangeInfo Button
+        var _href = $("#changeInfo").attr("href")
+        $("#changeInfo").attr("href", `${_href}?id=${urlParams.id}`)
+
+        //Friend Info
+        if (listFriends.length == 0) {
+            var notice = $("<h4>").html("Add Friends to Begin Growing Your Network")
+            notice.appendTo($("#friendInfo"))
+
+        }
+        for (var k = 0; k < listFriends.length; k++) {
+            // list-style: none; background: cornsilk;
+            var ul = $("<ul>").css({ "list-style": "none", "background": "cornsilk" });
+            console.log(ul)
+            var li1 = $("<li>");
+            var name = $("<h4>").html("Name: ");
+            var friendName = $("<p>").attr("id", "friendName").html(`${listFriends[k].firstName} ${listFriends[k].lastName}`);
+
+            friendName.appendTo(name);
+            name.appendTo(li1);
+            li1.appendTo(ul);
+
+            var li2 = $("<li>");
+            var hometown = $("<h4>").html("Hometown: ");
+            var friendHometown = $("<p>").attr("id", "friendHometown").html(listFriends[k].hometown);
+
+            friendHometown.appendTo(hometown);
+            hometown.appendTo(li2);
+            li2.appendTo(ul);
+
+
+            var li3 = $("<li>");
+            var school = $("<h4>").html("School: ");
+            var friendSchool = $("<p>").attr("id", "friendSchool").html(listFriends[k].school);
+
+            friendSchool.appendTo(school);
+            school.appendTo(li3);
+            li3.appendTo(ul);
+
+            var li4 = $("<li>");
+            var birthday = $("<h4>").html("Birthday :");
+            var friendBirthday = $("<p>").attr("id", "friendBirthday").html(listFriends[k].birthday);
+
+            friendBirthday.appendTo(birthday);
+            birthday.appendTo(li4);
+            li4.appendTo(ul);
+
+            ul.appendTo($("#friendInfo"))
+
+        }
+    })
+</script>
+
+</html>
